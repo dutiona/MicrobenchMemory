@@ -30,7 +30,6 @@ namespace MicrobenchMemory
       using difference_type                        = typename std::allocator<T>::difference_type;
       using propagate_on_container_move_assignment = typename std::allocator<T>::propagate_on_container_move_assignment;
 
-
       vanilla_allocator() {}
 
       template <typename U>
@@ -42,10 +41,8 @@ namespace MicrobenchMemory
       [[nodiscard]] constexpr T* allocate(size_type size)
       {
         void* p = std::malloc(size * sizeof(T));
-        if (p == 0)
-        {
+        if (!p)
           throw std::bad_alloc();
-        }
         return static_cast<T*>(p);
       }
 
