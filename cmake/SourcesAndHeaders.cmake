@@ -1,16 +1,16 @@
 set(sources
-    src/tmp.cpp
+    src/MicrobenchMemory.cpp
 )
 
 set(exe_sources
-		src/main.cpp
+		src/MicrobenchMemory.cpp
 		${sources}
 )
 
 set(headers
-    include/project/tmp.hpp
+    include/MicrobenchMemory/MicrobenchMemory.hpp
 )
 
 set(test_sources
-  src/tmp_test.cpp
+  src/MicrobenchMemory_tests.cpp
 )

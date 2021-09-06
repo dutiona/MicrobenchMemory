@@ -82,3 +82,6 @@ foreach(file ${test_sources})
 endforeach()
 
 verbose_message("Finished adding unit tests for ${CMAKE_PROJECT_NAME}.")
+
+set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
+set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
