@@ -13,6 +13,16 @@ namespace MicrobenchMemory
     bool has_memory_leak() const { return allocation_count != deallocation_count; }
   };
 
+  inline global_memory_informations operator+(const global_memory_informations& lhs, const global_memory_informations& rhs)
+  {
+    return {lhs.allocation_count + rhs.allocation_count, lhs.deallocation_count + rhs.deallocation_count, lhs.total_memory_allocated + rhs.total_memory_allocated};
+  }
+
+  inline global_memory_informations operator-(const global_memory_informations& lhs, const global_memory_informations& rhs)
+  {
+    return {lhs.allocation_count - rhs.allocation_count, lhs.deallocation_count - rhs.deallocation_count, lhs.total_memory_allocated - rhs.total_memory_allocated};
+  }
+
   struct scoped_memory_informations
   {
     std::size_t      allocation_count;
@@ -26,6 +36,28 @@ namespace MicrobenchMemory
     std::size_t count_memory_leaked() const { return total_memory_allocated - total_memory_deallocated; }
     std::size_t count_ptr_leaked() const { return nb_ptr_leaked; }
   };
+
+  inline scoped_memory_informations operator+(const scoped_memory_informations& lhs, const scoped_memory_informations& rhs)
+  {
+    using namespace std::literals;
+    return {lhs.allocation_count + rhs.allocation_count,
+            lhs.deallocation_count + rhs.deallocation_count,
+            lhs.total_memory_allocated + rhs.total_memory_allocated,
+            lhs.total_memory_deallocated + rhs.total_memory_deallocated,
+            lhs.nb_ptr_leaked + rhs.nb_ptr_leaked,
+            "(+op)"sv};
+  }
+
+  inline scoped_memory_informations operator-(const scoped_memory_informations& lhs, const scoped_memory_informations& rhs)
+  {
+    using namespace std::literals;
+    return {lhs.allocation_count - rhs.allocation_count,
+            lhs.deallocation_count - rhs.deallocation_count,
+            lhs.total_memory_allocated - rhs.total_memory_allocated,
+            lhs.total_memory_deallocated - rhs.total_memory_deallocated,
+            lhs.nb_ptr_leaked - rhs.nb_ptr_leaked,
+            "(-op)"sv};
+  }
 
   global_memory_informations get_global_memory_information_snapshot();
   scoped_memory_informations get_memory_information_snapshot(std::string_view scope);

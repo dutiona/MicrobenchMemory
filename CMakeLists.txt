@@ -324,3 +324,9 @@ if(${PROJECT_NAME}_ENABLE_UNIT_TESTING)
   message(STATUS "Build unit tests for the project. Tests should always be found in the test folder\n")
   add_subdirectory(test)
 endif()
+
+if(${PROJECT_NAME}_ENABLE_GOOGLEBENCHMARK_FIXTURE)
+  find_package(benchmark REQUIRED)
+
+  target_link_libraries(${PROJECT_NAME} PUBLIC benchmark::benchmark benchmark::benchmark_main)
+endif()
