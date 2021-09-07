@@ -4,8 +4,16 @@
 
 namespace MicrobenchMemory
 {
+  struct global_memory_informations
+  {
+    std::size_t allocation_count;
+    std::size_t deallocation_count;
+    std::size_t total_memory_allocated;
 
-  struct memory_informations
+    bool has_memory_leak() const { return allocation_count != deallocation_count; }
+  };
+
+  struct scoped_memory_informations
   {
     std::size_t      allocation_count;
     std::size_t      deallocation_count;
@@ -19,8 +27,8 @@ namespace MicrobenchMemory
     std::size_t count_ptr_leaked() const { return nb_ptr_leaked; }
   };
 
-  memory_informations get_global_memory_information_snapshot();
-  memory_informations get_memory_information_snapshot(std::string_view scope);
+  global_memory_informations get_global_memory_information_snapshot();
+  scoped_memory_informations get_memory_information_snapshot(std::string_view scope);
 
   namespace detail
   {

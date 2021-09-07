@@ -14,8 +14,9 @@ namespace MicrobenchMemory
 {
   namespace detail
   {
-    inline constexpr auto global_scope_name = "__global__"sv;
-
+    /*
+    scoped memory allocator, doesn't work on global level
+    */
     struct internal_ptr_infos
     {
       std::size_t size  = 0;
@@ -107,7 +108,7 @@ namespace MicrobenchMemory
       std::size_t count_memory_leaked() const { return total_memory_allocated_ - total_memory_deallocated_; }
       std::size_t count_ptr_leaked() const { return list_ptr_leaked().size(); }
 
-      memory_informations to_user_info(std::string_view scope) const
+      scoped_memory_informations to_user_info(std::string_view scope) const
       {
         return {allocation_count_, deallocation_count_, total_memory_allocated_, total_memory_deallocated_, count_ptr_leaked(), scope};
       }
@@ -123,21 +124,75 @@ namespace MicrobenchMemory
     using scoped_memory_information_storage_t =
         std::map<std::string_view, internal_memory_information, std::less<std::string_view>, vanilla_allocator<std::pair<const std::string_view, internal_memory_information>>>;
 
-    static scoped_memory_information_storage_t  __memory_informations = {{global_scope_name, internal_memory_information{}}};
-    static scoped_memory_information_storage_t& get_global_memory_information() { return __memory_informations; }
-
-    static void log_memory_allocation(std::string_view scope, void* ptr, std::size_t sz)
+    static scoped_memory_information_storage_t& get_all_scoped_memory_information()
     {
-      auto& minfo_map = get_global_memory_information();
+      static scoped_memory_information_storage_t memory_informations{};
+      return memory_informations;
+    }
+
+    static void log_scoped_memory_allocation(std::string_view scope, void* ptr, std::size_t sz)
+    {
+      auto& minfo_map = get_all_scoped_memory_information();
       minfo_map.try_emplace(scope, internal_memory_information{});
       minfo_map[scope].log_alloc(ptr, sz);
     }
 
-    static void log_memory_deallocation(std::string_view scope, void* ptr)
+    static void log_scoped_memory_deallocation(std::string_view scope, void* ptr)
     {
-      auto& minfo_map = get_global_memory_information();
+      auto& minfo_map = get_all_scoped_memory_information();
       minfo_map.try_emplace(scope, internal_memory_information{});
       minfo_map[scope].log_dealloc(ptr);
+    }
+
+    class light_internal_memory_information
+    {
+    public:
+      light_internal_memory_information()
+        : allocation_count_(0)
+        , deallocation_count_(0)
+        , total_memory_allocated_(0)
+      {
+      }
+
+      void log_alloc([[maybe_unused]] void* ptr, std::size_t sz)
+      {
+        // log the information
+        ++allocation_count_;
+        total_memory_allocated_ += sz;
+      }
+
+      void log_dealloc([[maybe_unused]] void* ptr)
+      {
+        // log the information
+        ++deallocation_count_;
+      }
+
+      bool has_memory_leak() const { return allocation_count_ != deallocation_count_; }
+
+      global_memory_informations to_user_info() const { return {allocation_count_, deallocation_count_, total_memory_allocated_}; }
+
+    private:
+      std::size_t allocation_count_;
+      std::size_t deallocation_count_;
+      std::size_t total_memory_allocated_;
+    };
+
+    static light_internal_memory_information& get_global_memory_information()
+    {
+      static light_internal_memory_information memory_informations{};
+      return memory_informations;
+    }
+
+    static void log_global_memory_allocation(void* ptr, std::size_t sz)
+    {
+      auto& minfo = get_global_memory_information();
+      minfo.log_alloc(ptr, sz);
+    }
+
+    static void log_global_memory_deallocation(void* ptr)
+    {
+      auto& minfo = get_global_memory_information();
+      minfo.log_dealloc(ptr);
     }
 
     [[nodiscard]] void* managed_new(std::size_t sz)
@@ -146,7 +201,7 @@ namespace MicrobenchMemory
       if (!ptr)
         throw std::bad_alloc{};
 
-      log_memory_allocation(global_scope_name, ptr, sz);
+      log_global_memory_allocation(ptr, sz);
       return ptr;
     }
 
@@ -156,7 +211,7 @@ namespace MicrobenchMemory
       if (!ptr)
         throw std::bad_alloc{};
 
-      log_memory_allocation(global_scope_name, ptr, count);
+      log_global_memory_allocation(ptr, count);
       return ptr;
     }
 
@@ -166,7 +221,7 @@ namespace MicrobenchMemory
       if (!ptr)
         throw std::bad_alloc{};
 
-      log_memory_allocation(global_scope_name, ptr, count);
+      log_global_memory_allocation(ptr, count);
       return ptr;
     }
 
@@ -176,56 +231,56 @@ namespace MicrobenchMemory
       if (!ptr)
         throw std::bad_alloc{};
 
-      log_memory_allocation(global_scope_name, ptr, count);
+      log_global_memory_allocation(ptr, count);
       return ptr;
     }
 
 
     void managed_delete(void* ptr) noexcept
     {
-      log_memory_deallocation(global_scope_name, ptr);
+      log_global_memory_deallocation(ptr);
       std::free(ptr);
     }
 
     void managed_delete(void* ptr, [[maybe_unused]] std::align_val_t al) noexcept
     {
-      log_memory_deallocation(global_scope_name, ptr);
+      log_global_memory_deallocation(ptr);
       std::free(ptr);
     }
 
     void managed_delete(void* ptr, [[maybe_unused]] std::size_t sz) noexcept
     {
-      log_memory_deallocation(global_scope_name, ptr);
+      log_global_memory_deallocation(ptr);
       std::free(ptr);
     }
 
     void managed_delete(void* ptr, [[maybe_unused]] std::size_t sz, [[maybe_unused]] std::align_val_t al) noexcept
     {
-      log_memory_deallocation(global_scope_name, ptr);
+      log_global_memory_deallocation(ptr);
       std::free(ptr);
     }
 
     void managed_delete_array(void* ptr) noexcept
     {
-      log_memory_deallocation(global_scope_name, ptr);
+      log_global_memory_deallocation(ptr);
       std::free(ptr);
     }
 
     void managed_delete_array(void* ptr, [[maybe_unused]] std::align_val_t al) noexcept
     {
-      log_memory_deallocation(global_scope_name, ptr);
+      log_global_memory_deallocation(ptr);
       std::free(ptr);
     }
 
     void managed_delete_array(void* ptr, [[maybe_unused]] std::size_t sz) noexcept
     {
-      log_memory_deallocation(global_scope_name, ptr);
+      log_global_memory_deallocation(ptr);
       std::free(ptr);
     }
 
     void managed_delete_array(void* ptr, [[maybe_unused]] std::size_t sz, [[maybe_unused]] std::align_val_t al) noexcept
     {
-      log_memory_deallocation(global_scope_name, ptr);
+      log_global_memory_deallocation(ptr);
       std::free(ptr);
     }
 
@@ -236,7 +291,7 @@ namespace MicrobenchMemory
       if (!ptr)
         throw std::bad_alloc{};
 
-      log_memory_allocation(class_name, ptr, sz);
+      log_scoped_memory_allocation(class_name, ptr, sz);
       return ptr;
     }
 
@@ -246,7 +301,7 @@ namespace MicrobenchMemory
       if (!ptr)
         throw std::bad_alloc{};
 
-      log_memory_allocation(class_name, ptr, count);
+      log_scoped_memory_allocation(class_name, ptr, count);
       return ptr;
     }
 
@@ -256,7 +311,7 @@ namespace MicrobenchMemory
       if (!ptr)
         throw std::bad_alloc{};
 
-      log_memory_allocation(class_name, ptr, count);
+      log_scoped_memory_allocation(class_name, ptr, count);
       return ptr;
     }
 
@@ -266,67 +321,64 @@ namespace MicrobenchMemory
       if (!ptr)
         throw std::bad_alloc{};
 
-      log_memory_allocation(class_name, ptr, count);
+      log_scoped_memory_allocation(class_name, ptr, count);
       return ptr;
     }
 
 
     void managed_delete(std::string_view class_name, void* ptr) noexcept
     {
-      log_memory_deallocation(class_name, ptr);
+      log_scoped_memory_deallocation(class_name, ptr);
       std::free(ptr);
     }
 
     void managed_delete(std::string_view class_name, void* ptr, [[maybe_unused]] std::align_val_t al) noexcept
     {
-      log_memory_deallocation(class_name, ptr);
+      log_scoped_memory_deallocation(class_name, ptr);
       std::free(ptr);
     }
 
     void managed_delete(std::string_view class_name, void* ptr, [[maybe_unused]] std::size_t sz) noexcept
     {
-      log_memory_deallocation(class_name, ptr);
+      log_scoped_memory_deallocation(class_name, ptr);
       std::free(ptr);
     }
 
     void managed_delete(std::string_view class_name, void* ptr, [[maybe_unused]] std::size_t sz, [[maybe_unused]] std::align_val_t al) noexcept
     {
-      log_memory_deallocation(class_name, ptr);
+      log_scoped_memory_deallocation(class_name, ptr);
       std::free(ptr);
     }
 
     void managed_delete_array(std::string_view class_name, void* ptr) noexcept
     {
-      log_memory_deallocation(class_name, ptr);
+      log_scoped_memory_deallocation(class_name, ptr);
       std::free(ptr);
     }
 
     void managed_delete_array(std::string_view class_name, void* ptr, [[maybe_unused]] std::align_val_t al) noexcept
     {
-      log_memory_deallocation(class_name, ptr);
+      log_scoped_memory_deallocation(class_name, ptr);
       std::free(ptr);
     }
 
     void managed_delete_array(std::string_view class_name, void* ptr, [[maybe_unused]] std::size_t sz) noexcept
     {
-      log_memory_deallocation(class_name, ptr);
+      log_scoped_memory_deallocation(class_name, ptr);
       std::free(ptr);
     }
 
     void managed_delete_array(std::string_view class_name, void* ptr, [[maybe_unused]] std::size_t sz, [[maybe_unused]] std::align_val_t al) noexcept
     {
-      log_memory_deallocation(class_name, ptr);
+      log_scoped_memory_deallocation(class_name, ptr);
       std::free(ptr);
     }
 
   } // namespace detail
 
 
-  memory_informations get_global_memory_information_snapshot()
-  {
-    return detail::get_global_memory_information()[detail::global_scope_name].to_user_info(detail::global_scope_name);
-  }
+  global_memory_informations get_global_memory_information_snapshot() { return detail::get_global_memory_information().to_user_info(); }
 
-  memory_informations get_memory_information_snapshot(std::string_view scope) { return detail::get_global_memory_information()[scope].to_user_info(scope); }
+  scoped_memory_informations get_memory_information_snapshot(std::string_view scope) { return detail::get_all_scoped_memory_information()[scope].to_user_info(scope); }
 
 } // namespace MicrobenchMemory
