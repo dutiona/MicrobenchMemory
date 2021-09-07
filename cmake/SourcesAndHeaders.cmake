@@ -18,7 +18,7 @@ if(${PROJECT_NAME}_ENABLE_GOOGLEBENCHMARK_FIXTURE)
     src/fixture/GoogleBenchmarkBridge/GoogleBenchmarkBridge.cpp
   )
   list(APPEND headers
-    include/fixture/GoogleBenchmarkBridge/GoogleBenchmarkBridge.hpp
+    include/MicrobenchMemory/fixture/GoogleBenchmarkBridge/GoogleBenchmarkBridge.hpp
   )
 
   list(APPEND test_sources

@@ -1,4 +1,4 @@
-#include "fixture/GoogleBenchmarkBridge/GoogleBenchmarkBridge.hpp"
+#include "MicrobenchMemory/fixture/GoogleBenchmarkBridge/GoogleBenchmarkBridge.hpp"
 #include "MicrobenchMemory/MicrobenchMemory.hpp"
 
 #include <benchmark/benchmark.h>

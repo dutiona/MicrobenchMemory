@@ -1,6 +1,6 @@
 #include "MicrobenchMemory/MicrobenchMemory.hpp"
 #include "MicrobenchMemory/ext/io.hpp"
-#include "fixture/GoogleBenchmarkBridge/GoogleBenchmarkBridge.hpp"
+#include "MicrobenchMemory/fixture/GoogleBenchmarkBridge/GoogleBenchmarkBridge.hpp"
 
 #include <benchmark/benchmark.h>
 
