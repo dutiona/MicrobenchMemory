@@ -6,8 +6,8 @@
 
 # Microbench Memory
 
-Microbench Memory is a library utility that benchmark the memory usage/consumption
-at when running code. The library works by intercepting calls to global:
+Microbench Memory is a library utility that benchmarks the memory usage/consumption
+at runtime. The library works by intercepting calls to global:
 
 ```cpp
 ::operator new
