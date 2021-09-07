@@ -19,6 +19,13 @@ namespace std
 } // namespace std
 #endif
 
+#ifdef __APPLE__
+namespace std
+{
+  using ::aligned_alloc;
+}
+#endif
+
 namespace MicrobenchMemory
 {
   namespace detail
