@@ -19,6 +19,8 @@ namespace std
 } // namespace std
 #endif
 
+// As of apple clang, aligned_alloc is not part of std
+// Simply pulling the c function from stdlib.h into the std namespace here
 #ifdef __APPLE__
 namespace std
 {
