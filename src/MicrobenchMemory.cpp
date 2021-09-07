@@ -10,6 +10,15 @@
 
 using namespace std::literals;
 
+// As of MSVC 19.29 (VS 16.11)
+// std::aligned_alloc is a compiler intrinsic instead of a standard function
+#ifdef _MSC_VER
+namespace std
+{
+  void* aligned_alloc(std::size_t alignment, std::size_t size) { return _aligned_malloc(size, alignment); }
+} // namespace std
+#endif
+
 namespace MicrobenchMemory
 {
   namespace detail
