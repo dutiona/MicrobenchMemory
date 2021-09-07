@@ -1,8 +1,8 @@
 [![Actions Status](https://github.com/dutiona/MicrobenchMemory/workflows/MacOS/badge.svg)](https://github.com/dutiona/MicrobenchMemory/actions)
 [![Actions Status](https://github.com/dutiona/MicrobenchMemory/workflows/Windows/badge.svg)](https://github.com/dutiona/MicrobenchMemory/actions)
 [![Actions Status](https://github.com/dutiona/MicrobenchMemory/workflows/Ubuntu/badge.svg)](https://github.com/dutiona/MicrobenchMemory/actions)
-[![codecov](https://codecov.io/gh/filipdutescu/modern-cpp-template/branch/master/graph/badge.svg)](https://codecov.io/gh/filipdutescu/modern-cpp-template)
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/filipdutescu/modern-cpp-template)](https://github.com/dutiona/MicrobenchMemory/releases)
+[![codecov](https://codecov.io/gh/dutiona/MicrobenchMemory/branch/master/graph/badge.svg)](https://codecov.io/gh/dutiona/MicrobenchMemory)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/dutiona/MicrobenchMemory)](https://github.com/dutiona/MicrobenchMemory/releases)
 
 # Microbench Memory
 
