@@ -75,7 +75,19 @@ jobs:
         cmake --build build --config Release
         cmake --build build --target install --config Release
         cd ../MicrobenchMemory
-
+    
+    - name: install GoogleBenchmark
+      if: ${{steps.cache.output.cache-hit != 'true'}}
+      run: |
+        cd ..
+        git clone https://github.com/google/benchmark.git --branch v1.6.0
+        cd benchmark
+        cmake -E make_directory "build"
+        cmake -E chdir "build" cmake -DCMAKE_INSTALL_PREFIX="$HOME/$env:INSTALL_LOCATION" -DBENCHMARK_DOWNLOAD_DEPENDENCIES=on -DCMAKE_BUILD_TYPE=Release ../
+        cmake --build "build" --config Release
+        cmake --build "build" --target install --config Release
+        cd ../MicrobenchMemory
+        
     - name: configure
       run: cmake -Bbuild -DCMAKE_INSTALL_PREFIX="$HOME/.local"
       
