@@ -35,6 +35,8 @@ namespace MicrobenchMemory
     bool        has_memory_leak() const { return allocation_count != deallocation_count || total_memory_allocated != total_memory_deallocated; }
     std::size_t count_memory_leaked() const { return total_memory_allocated - total_memory_deallocated; }
     std::size_t count_ptr_leaked() const { return nb_ptr_leaked; }
+
+    operator global_memory_informations() const { return {allocation_count, deallocation_count, total_memory_allocated}; }
   };
 
   inline scoped_memory_informations operator+(const scoped_memory_informations& lhs, const scoped_memory_informations& rhs)
